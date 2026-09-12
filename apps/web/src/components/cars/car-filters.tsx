@@ -3,6 +3,7 @@
 import { cn } from "cn";
 
 import { Button } from "$components/ui/button";
+import { Card, CardContent } from "$components/ui/card";
 import { Checkbox } from "$components/ui/checkbox";
 import { Input } from "$components/ui/input";
 import { Label } from "$components/ui/label";
@@ -37,82 +38,92 @@ export function CarFiltersCard({ filters, onChange, onClear }: CarFiltersProps) 
   const activeCount = activeFilterCount(filters);
 
   return (
-    <aside className="flex flex-col gap-5 rounded-lg border border-border p-4">
-      <FilterGroup label="Type">
-        {CAR_TYPES.map((type) => (
-          <CheckRow
-            key={type}
-            id={`type-${type}`}
-            label={TYPE_LABEL[type]}
-            checked={filters.type.includes(type)}
-            onCheckedChange={(checked) => onChange({ type: toggle(filters.type, type, checked) })}
-          />
-        ))}
-      </FilterGroup>
+    <aside aria-label="Filters">
+      <Card>
+        <CardContent className="flex flex-col gap-5">
+          <FilterGroup label="Type">
+            {CAR_TYPES.map((type) => (
+              <CheckRow
+                key={type}
+                id={`type-${type}`}
+                label={TYPE_LABEL[type]}
+                checked={filters.type.includes(type)}
+                onCheckedChange={(checked) =>
+                  onChange({ type: toggle(filters.type, type, checked) })
+                }
+              />
+            ))}
+          </FilterGroup>
 
-      <FilterGroup label="Status">
-        {CAR_STATUSES.map((status) => (
-          <CheckRow
-            key={status}
-            id={`status-${status}`}
-            label={STATUS_LABEL[status]}
-            checked={filters.status.includes(status)}
-            onCheckedChange={(checked) =>
-              onChange({ status: toggle(filters.status, status, checked) })
-            }
-          />
-        ))}
-      </FilterGroup>
+          <FilterGroup label="Status">
+            {CAR_STATUSES.map((status) => (
+              <CheckRow
+                key={status}
+                id={`status-${status}`}
+                label={STATUS_LABEL[status]}
+                checked={filters.status.includes(status)}
+                onCheckedChange={(checked) =>
+                  onChange({ status: toggle(filters.status, status, checked) })
+                }
+              />
+            ))}
+          </FilterGroup>
 
-      <FilterGroup label="Price per day">
-        <RangeInputs
-          idPrefix="price"
-          minValue={filters.minPrice}
-          maxValue={filters.maxPrice}
-          minPlaceholder="Min"
-          maxPlaceholder="Max"
-          onMinChange={(minPrice) => onChange({ minPrice })}
-          onMaxChange={(maxPrice) => onChange({ maxPrice })}
-        />
-      </FilterGroup>
+          <FilterGroup label="Price per day">
+            <RangeInputs
+              idPrefix="price"
+              minValue={filters.minPrice}
+              maxValue={filters.maxPrice}
+              minPlaceholder="Min"
+              maxPlaceholder="Max"
+              onMinChange={(minPrice) => onChange({ minPrice })}
+              onMaxChange={(maxPrice) => onChange({ maxPrice })}
+            />
+          </FilterGroup>
 
-      <FilterGroup label="Seats">
-        <ToggleRow
-          options={SEAT_OPTIONS}
-          selected={filters.seats}
-          onToggle={(seat, pressed) => onChange({ seats: toggle(filters.seats, seat, pressed) })}
-        />
-      </FilterGroup>
+          <FilterGroup label="Seats">
+            <ToggleRow
+              options={SEAT_OPTIONS}
+              selected={filters.seats}
+              onToggle={(seat, pressed) =>
+                onChange({ seats: toggle(filters.seats, seat, pressed) })
+              }
+            />
+          </FilterGroup>
 
-      <FilterGroup label="Doors">
-        <ToggleRow
-          options={DOOR_OPTIONS}
-          selected={filters.doors}
-          onToggle={(door, pressed) => onChange({ doors: toggle(filters.doors, door, pressed) })}
-        />
-      </FilterGroup>
+          <FilterGroup label="Doors">
+            <ToggleRow
+              options={DOOR_OPTIONS}
+              selected={filters.doors}
+              onToggle={(door, pressed) =>
+                onChange({ doors: toggle(filters.doors, door, pressed) })
+              }
+            />
+          </FilterGroup>
 
-      <FilterGroup label="Year">
-        <RangeInputs
-          idPrefix="year"
-          minValue={filters.minYear}
-          maxValue={filters.maxYear}
-          minPlaceholder="From"
-          maxPlaceholder="To"
-          onMinChange={(minYear) => onChange({ minYear })}
-          onMaxChange={(maxYear) => onChange({ maxYear })}
-        />
-      </FilterGroup>
+          <FilterGroup label="Year">
+            <RangeInputs
+              idPrefix="year"
+              minValue={filters.minYear}
+              maxValue={filters.maxYear}
+              minPlaceholder="From"
+              maxPlaceholder="To"
+              onMinChange={(minYear) => onChange({ minYear })}
+              onMaxChange={(maxYear) => onChange({ maxYear })}
+            />
+          </FilterGroup>
 
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onClear}
-        disabled={activeCount === 0}
-        className="self-start px-0 hover:bg-transparent hover:underline"
-      >
-        {activeCount === 0 ? "No filters" : `Clear all (${activeCount})`}
-      </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClear}
+            disabled={activeCount === 0}
+            className="self-start px-0 hover:bg-transparent hover:underline"
+          >
+            {activeCount === 0 ? "No filters" : `Clear all (${activeCount})`}
+          </Button>
+        </CardContent>
+      </Card>
     </aside>
   );
 }
