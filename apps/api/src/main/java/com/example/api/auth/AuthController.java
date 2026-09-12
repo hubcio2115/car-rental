@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
@@ -67,7 +69,7 @@ public class AuthController {
         }
     }
 
-    record CurrentUser(String email, List<String> roles) {
+    record CurrentUser(@NotNull String email, @NotNull List<String> roles) {
         static CurrentUser from(Authentication authentication) {
             var roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)

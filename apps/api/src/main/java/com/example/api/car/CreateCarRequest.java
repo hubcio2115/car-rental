@@ -1,5 +1,6 @@
 package com.example.api.car;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -37,11 +38,13 @@ public record CreateCarRequest(
         @NotNull
         @Min(1)
         @Max(9)
+        @Schema(implementation = Integer.class)
         Byte seats,
 
         @NotNull
         @Min(1)
         @Max(6)
+        @Schema(implementation = Integer.class)
         Byte doors,
 
         @NotNull

@@ -1,6 +1,8 @@
 spring:
   application:
     name: api
+  profiles:
+    default: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/car_rental
     username: postgres
@@ -19,6 +21,7 @@ spring:
       pageable:
         default-page-size: 20
         max-page-size: 100
+        serialization-mode: via-dto
   mvc:
     problemdetails:
       enabled: true
@@ -34,3 +37,9 @@ server:
 app:
   web-origin: http://localhost:3000
   cookie-domain: ""
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

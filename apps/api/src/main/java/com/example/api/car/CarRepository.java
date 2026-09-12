@@ -1,11 +1,10 @@
 package com.example.api.car;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface CarRepository extends JpaRepository<Car, Long> {
-    boolean existsByVin(String v);
+public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificationExecutor<Car> {
+    boolean existsByVin(String vin);
 
-    boolean existsByRegistrationNumber(@NotBlank @Size(max = 16) String s);
+    boolean existsByRegistrationNumber(String registrationNumber);
 }

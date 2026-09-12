@@ -3,16 +3,26 @@ package com.example.api.car;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Set;
+
 @Service
 @Validated
 @RequiredArgsConstructor
 public class CarService {
+    private static final Set<String> SORTABLE = Set.of(
+            "id", "model", "year", "type", "registrationNumber",
+            "seats", "doors", "pricePerDay", "status");
+
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.ASC, "id");
+
     private final CarRepository cars;
 
     public Car getById(Long id) {
@@ -46,7 +56,16 @@ public class CarService {
         return cars.save(newCar);
     }
 
-    public Page<Car> list(Pageable pageable) {
-        return cars.findAll(pageable);
+    public Page<Car> list(CarFilter filter, Pageable pageable) {
+        return cars.findAll(CarSpecifications.matching(filter), withSafeSort(pageable));
+    }
+
+    private static Pageable withSafeSort(Pageable pageable) {
+        var orders = pageable.getSort().stream()
+                .filter(order -> SORTABLE.contains(order.getProperty()))
+                .toList();
+
+        var sort = orders.isEmpty() ? DEFAULT_SORT : Sort.by(orders);
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
     }
 }

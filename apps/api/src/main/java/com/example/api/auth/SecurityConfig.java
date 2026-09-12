@@ -3,6 +3,7 @@ package com.example.api.auth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,23 +28,32 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
+    private static final String[] DOC_PATHS = {
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+    };
+
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, CsrfTokenRepository csrfToken) {
+    SecurityFilterChain filterChain(HttpSecurity http, CsrfTokenRepository csrfToken, Environment env) {
+        var publishDocs = env.matchesProfiles("dev");
+
         return http.cors(Customizer.withDefaults())
                 .csrf(csrf -> {
                     csrf.spa();
                     csrf.csrfTokenRepository(csrfToken);
                 })
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll();
+                    auth.requestMatchers("/actuator/health").permitAll();
+                    auth.requestMatchers("/error").permitAll();
+                    if (publishDocs)
+                        auth.requestMatchers(DOC_PATHS).permitAll();
+                    auth.anyRequest().authenticated();
+                })
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpStatus.NO_CONTENT.value()))
+                        .logoutSuccessHandler((_, res, _) -> res.setStatus(HttpStatus.NO_CONTENT.value()))
                         .deleteCookies("JSESSIONID"))
                 .build();
     }
@@ -62,12 +72,6 @@ class SecurityConfig {
         return source;
     }
 
-    /**
-     * Readable by JS for the double submit header. Domain stays unset on localhost,
-     * where cookies already cross ports; in prod it widens to the apex so app.*
-     * sees
-     * what api.* set.
-     */
     @Bean
     CsrfTokenRepository csrfTokenRepository(@Value("${app.cookie-domain:}") String cookieDomain) {
         var repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
