@@ -6,8 +6,8 @@ import { $serverFetch } from "~/lib/api/server-fetch";
 import { carQueries } from "~/lib/cars/queries";
 import { getQueryClient } from "$lib/get-query-client";
 import { loadCarSearchParams } from "~/lib/cars/search-params";
-import { CarsView } from "./cars-view";
-import { CarsTableSkeleton } from "./cars-table-skeleton";
+import { CarsView } from "$components/cars/cars-view";
+import { CarsTableSkeleton } from "$components/cars/cars-table-skeleton";
 
 export default function CarsPage(props: PageProps<"/cars">) {
   return (

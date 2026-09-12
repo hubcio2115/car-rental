@@ -149,7 +149,7 @@ export function CarsTable({ filters, onChange, isPending }: CarsTableProps) {
 
       {totalPages > 1 ? (
         <CarPagination
-          pageIndex={filters.page}
+          filters={filters}
           totalPages={totalPages}
           onPageChange={(pageIndex) => onChange({ page: pageIndex })}
         />

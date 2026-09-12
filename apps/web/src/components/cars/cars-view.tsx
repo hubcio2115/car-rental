@@ -6,10 +6,10 @@ import { Suspense, useEffect, useState, useTransition } from "react";
 import { carSearchParams, type CarFiltersUpdate } from "~/lib/cars/search-params";
 import { useQueryStates } from "nuqs";
 import { CarFiltersCard } from "./car-filters";
-import { CarSearch } from "./car-search";
-import { CarsTable } from "./cars-table";
-import { CarsTableBoundary } from "./cars-table-error";
-import { CarsTableSkeleton } from "./cars-table-skeleton";
+import { CarSearch } from "$components/cars/car-search";
+import { CarsTable } from "$components/cars/cars-table";
+import { CarsTableBoundary } from "$components/cars/cars-table-error";
+import { CarsTableSkeleton } from "$components/cars/cars-table-skeleton";
 
 const SEARCH_DEBOUNCE_MS = 300;
 

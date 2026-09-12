@@ -1,5 +1,6 @@
 import {
   createLoader,
+  createSerializer,
   parseAsArrayOf,
   parseAsFloat,
   parseAsInteger,
@@ -52,6 +53,8 @@ export type CarFilters = inferParserType<typeof carSearchParams>;
 export type CarFiltersUpdate = Partial<{ [K in keyof CarFilters]: CarFilters[K] | null }>;
 
 export const loadCarSearchParams = createLoader(carSearchParams);
+
+export const serializeCarSearchParams = createSerializer(carSearchParams, { clearOnDefault: true });
 
 export function activeFilterCount(filters: CarFilters): number {
   return [
