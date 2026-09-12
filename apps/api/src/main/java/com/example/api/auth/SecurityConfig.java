@@ -37,17 +37,14 @@ class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/error").permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                ))
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((req, res, auth) ->
-                                res.setStatus(HttpStatus.NO_CONTENT.value()))
-                        .deleteCookies("JSESSIONID")
-                )
+                        .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpStatus.NO_CONTENT.value()))
+                        .deleteCookies("JSESSIONID"))
                 .build();
     }
 
@@ -67,7 +64,8 @@ class SecurityConfig {
 
     /**
      * Readable by JS for the double submit header. Domain stays unset on localhost,
-     * where cookies already cross ports; in prod it widens to the apex so app.* sees
+     * where cookies already cross ports; in prod it widens to the apex so app.*
+     * sees
      * what api.* set.
      */
     @Bean
