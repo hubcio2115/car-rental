@@ -5,11 +5,12 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "typecheck": "turbo run typecheck",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "devDependencies": {
-    "prettier": "3.9.6",
+    "oxfmt": "^0.67.0",
     "turbo": "^2.10.12",
     "typescript": "7.0.2"
   },

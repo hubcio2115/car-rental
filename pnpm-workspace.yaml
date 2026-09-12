@@ -1,3 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+injectWorkspacePackages: true
+
+catalog:
+  oxlint: ^1.82.0
+  oxlint-tsgolint: ^7.0.2001
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

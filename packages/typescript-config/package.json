@@ -1,9 +1,14 @@
 {
   "name": "@repo/typescript-config",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  }
+  "description": "Shared TypeScript configurations for the monorepo",
+  "exports": {
+    "./base.json": "./base.json",
+    "./library.json": "./library.json"
+  },
+  "files": [
+    "base.json",
+    "library.json"
+  ]
 }
