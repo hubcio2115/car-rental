@@ -1,12 +1,12 @@
 import "server-only";
 
 import { $serverFetch } from "~/lib/api/server-fetch";
-import { userSchema, type User } from "./schema";
+import type { User } from "~/lib/api/types";
 
 export async function getSession(): Promise<User | null> {
   "use cache: private";
 
-  const { data, error } = await $serverFetch("/auth/me", { output: userSchema });
+  const { data, error } = await $serverFetch<User>("/auth/me");
   if (error !== null) return null;
 
   return {

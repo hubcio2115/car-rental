@@ -7,7 +7,7 @@ import * as z from "zod";
 
 import { springErrorDetail } from "~/lib/api/problem";
 import { $serverFetch } from "~/lib/api/server-fetch";
-import { loginSchema, registerSchema, userSchema } from "./schema";
+import { loginSchema, registerSchema } from "./schema";
 
 export interface AuthFormState {
   fieldErrors?: { email?: string[]; password?: string[] };
@@ -42,7 +42,6 @@ export async function login(_previous: AuthFormState, formData: FormData): Promi
   const { error } = await $serverFetch("/auth/login", {
     method: "POST",
     body: parsed.data,
-    output: userSchema,
   });
 
   if (error !== null) {
@@ -79,7 +78,6 @@ export async function register(
   const { error } = await $serverFetch("/auth/register", {
     method: "POST",
     body: parsed.data,
-    output: userSchema,
   });
 
   if (error !== null) {

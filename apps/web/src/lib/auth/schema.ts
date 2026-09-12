@@ -16,10 +16,3 @@ export const registerSchema = z.object({
     .min(8, { error: "Password must be at least 8 characters." })
     .max(72, { error: "Password must be at most 72 characters." }),
 });
-
-export const userSchema = z.object({
-  email: z.string(),
-  roles: z.array(z.string()),
-});
-
-export type User = z.infer<typeof userSchema>;
