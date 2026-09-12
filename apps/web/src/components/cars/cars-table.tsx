@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "$components/ui/table";
+import { Spinner } from "$components/ui/spinner";
 import { carQueries } from "~/lib/cars/queries";
 import {
   PAGE_SIZE,
@@ -71,14 +72,20 @@ export function CarsTable({ filters, onChange, isPending }: CarsTableProps) {
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="relative flex items-center gap-3">
         <p className="font-mono text-[13px] text-muted-foreground tabular-nums">
           {describeRange(filters.page, rows.length, totalElements)}
         </p>
+
+        {/* Centred over the table; absolute so it never shifts the range text. Mounted only while
+            a request is in flight, so nothing animates at rest. */}
+        {isPending ? (
+          <Spinner className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground motion-reduce:animate-none" />
+        ) : null}
       </div>
 
       <div className="overflow-x-auto">
-        <Table className={cn("transition-opacity", isPending && "opacity-50")}>
+        <Table className={cn("transition-opacity", isPending && "opacity-60")}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

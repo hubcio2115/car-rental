@@ -1,8 +1,10 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Suspense, useEffect, useState, useTransition } from "react";
+import { Suspense, useDeferredValue, useEffect, useState } from "react";
 
+import { carQueries } from "~/lib/cars/queries";
 import { carSearchParams, type CarFiltersUpdate } from "~/lib/cars/search-params";
 import { useQueryStates } from "nuqs";
 import { CarFiltersCard } from "./car-filters";
@@ -14,11 +16,14 @@ import { CarsTableSkeleton } from "$components/cars/cars-table-skeleton";
 const SEARCH_DEBOUNCE_MS = 300;
 
 export function CarsView() {
-  const [isPending, startTransition] = useTransition();
-  const [filters, setFilters] = useQueryStates(carSearchParams, {
-    startTransition,
-    clearOnDefault: true,
-  });
+  const [filters, setFilters] = useQueryStates(carSearchParams, { clearOnDefault: true });
+
+  const deferredFilters = useDeferredValue(filters);
+
+  const queryClient = useQueryClient();
+  const isPending =
+    filters !== deferredFilters &&
+    queryClient.getQueryData(carQueries.list(filters).queryKey) === undefined;
 
   function changeFilters(next: CarFiltersUpdate) {
     const resetsPage = !("page" in next) && !("sort" in next);
@@ -64,7 +69,7 @@ export function CarsView() {
 
         <CarsTableBoundary>
           <Suspense fallback={<CarsTableSkeleton />}>
-            <CarsTable filters={filters} onChange={changeFilters} isPending={isPending} />
+            <CarsTable filters={deferredFilters} onChange={changeFilters} isPending={isPending} />
           </Suspense>
         </CarsTableBoundary>
       </div>
