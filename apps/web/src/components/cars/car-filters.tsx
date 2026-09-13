@@ -7,26 +7,12 @@ import { Card, CardContent } from "$components/ui/card";
 import { Checkbox } from "$components/ui/checkbox";
 import { Input } from "$components/ui/input";
 import { Label } from "$components/ui/label";
-import { CAR_STATUSES, CAR_TYPES, type CarStatus, type CarType } from "~/lib/api/types";
-import {
-  activeFilterCount,
-  type CarFilters,
-  type CarFiltersUpdate,
-} from "~/lib/cars/search-params";
+import { CAR_STATUSES, CAR_TYPES } from "$lib/api/types";
+import { STATUS_LABEL, TYPE_LABEL } from "$lib/cars/format";
+import { activeFilterCount, type CarFilters, type CarFiltersUpdate } from "$lib/cars/search-params";
 
 const SEAT_OPTIONS = [5, 7, 8, 9] as const;
 const DOOR_OPTIONS = [4, 5] as const;
-
-const TYPE_LABEL: Record<CarType, string> = {
-  SEDAN: "Sedan",
-  SUV: "SUV",
-  VAN: "Van",
-};
-
-const STATUS_LABEL: Record<CarStatus, string> = {
-  AVAILABLE: "Available",
-  RENTED: "Rented",
-};
 
 interface CarFiltersProps {
   filters: CarFilters;
