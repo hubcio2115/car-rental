@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Covers the request binding and guards that would otherwise fail silently or as a 500: how the
  * multi value params arrive, that an unknown sort is dropped rather than reaching the Criteria API,
- * and that out of range input is rejected before it becomes a query.
+ * that out of range input is rejected before it becomes a query, and that a missing car is a 404.
  *
  * <p>Transactional, so the rows it inserts roll back and the seeded dev fleet is untouched.
  */
@@ -83,6 +83,26 @@ class CarControllerTest {
                 .andExpect(jsonPath("$.page.size").value(5))
                 .andExpect(jsonPath("$.page.number").value(0))
                 .andExpect(jsonPath("$.page.totalElements").exists());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("a car can be fetched by id")
+    void getsCarById() throws Exception {
+        var saved = cars.save(car("Skoda Octavia", CarType.SEDAN, "180.00"));
+
+        mockMvc.perform(get("/car/{carId}", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.model").value("Skoda Octavia"))
+                .andExpect(jsonPath("$.vin").value(saved.getVin()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("an unknown id is a 404, which the details page renders as not found")
+    void unknownCarIsNotFound() throws Exception {
+        mockMvc.perform(get("/car/{carId}", Long.MAX_VALUE))
+                .andExpect(status().isNotFound());
     }
 
     private static Car car(String model, CarType type, String pricePerDay) {

@@ -21,9 +21,8 @@ public class CarController {
 
     @GetMapping
     @Operation(summary = "List cars matching the given filters")
-    public Page<Car> getCars(
-            @Valid @ParameterObject @ModelAttribute CarFilter filter,
-            @ParameterObject @PageableDefault(size = 12, sort = "id") Pageable pageable) {
+    public Page<Car> getCars(@Valid @ParameterObject @ModelAttribute CarFilter filter,
+                             @ParameterObject @PageableDefault(size = 12, sort = "id") Pageable pageable) {
         return carService.list(filter, pageable);
     }
 
