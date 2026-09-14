@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 @Entity
 @Table(name = "cars")
@@ -50,28 +51,17 @@ public class Car {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Formula("""
+            (CASE WHEN EXISTS (
+                SELECT 1 FROM rentals r
+                WHERE r.car_id = id AND daterange(r.start_date, r.end_date, '[]') @> CURRENT_DATE
+            ) THEN 'RENTED' ELSE 'AVAILABLE' END)""")
     @Builder.Default
+    @Setter(AccessLevel.NONE)
     private CarStatus status = CarStatus.AVAILABLE;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CarType type;
-
-    @PrePersist
-    void applyDefaults() {
-        if (status == null) status = CarStatus.AVAILABLE;
-    }
-}
-
-enum CarStatus {
-    AVAILABLE,
-    RENTED,
-}
-
-enum CarType {
-    SUV,
-    SEDAN,
-    VAN
 }
