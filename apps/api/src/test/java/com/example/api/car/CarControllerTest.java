@@ -32,10 +32,14 @@ class CarControllerTest {
     @Autowired
     private CarRepository cars;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
     @Test
     @WithMockUser
     @DisplayName("a comma separated enum list binds as several values, not one")
     void commaSeparatedEnumsBind() throws Exception {
+        jdbc.update("DELETE FROM rentals");
         cars.deleteAll();
         cars.save(car("Toyota Corolla", CarType.SEDAN, "150.00"));
         cars.save(car("Toyota RAV4", CarType.SUV, "250.00"));
@@ -116,7 +120,6 @@ class CarControllerTest {
                 .seats((byte) 5)
                 .doors((byte) 4)
                 .pricePerDay(new java.math.BigDecimal(pricePerDay))
-                .status(CarStatus.AVAILABLE)
                 .type(type)
                 .build();
     }

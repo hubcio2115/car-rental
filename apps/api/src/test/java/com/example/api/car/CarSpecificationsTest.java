@@ -1,5 +1,8 @@
 package com.example.api.car;
 
+import com.example.api.auth.Account;
+import com.example.api.rental.Rental;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -17,11 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Covers the behaviour of the filter that is not obvious from reading it: how values combine, which
- * bounds are inclusive, and that a search term cannot smuggle in SQL wildcards.
+ * bounds are inclusive, that a search term cannot smuggle in SQL wildcards, and that status follows
+ * whichever rental covers today.
  *
  * <p>Runs against the real Postgres rather than an embedded database, because the assertions depend
- * on actual SQL semantics: LIKE with an ESCAPE clause and NUMERIC comparison. Requires
- * `docker compose -f docker/compose.yaml up -d`, which is already step one of running the app.
+ * on actual SQL semantics: LIKE with an ESCAPE clause, NUMERIC comparison and daterange containment.
+ * Requires `docker compose -f docker/compose.yaml up -d`, which is already step one of running the app.
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -30,15 +35,32 @@ class CarSpecificationsTest {
     @Autowired
     private CarRepository cars;
 
+    @Autowired
+    private EntityManager em;
+
     @BeforeEach
     void seed() {
+        em.createQuery("delete from Rental").executeUpdate();
         cars.deleteAll();
-        cars.saveAll(List.of(
-                car("Toyota Corolla", 2020, CarType.SEDAN, (byte) 5, (byte) 4, "150.00", CarStatus.AVAILABLE),
-                car("Toyota RAV4", 2022, CarType.SUV, (byte) 5, (byte) 5, "250.00", CarStatus.RENTED),
-                car("Kia Sorento", 2024, CarType.SUV, (byte) 7, (byte) 5, "300.00", CarStatus.AVAILABLE),
-                car("Mercedes Vito", 2018, CarType.VAN, (byte) 9, (byte) 5, "400.00", CarStatus.AVAILABLE),
-                car("50% Discount Special", 2021, CarType.SEDAN, (byte) 5, (byte) 4, "99.00", CarStatus.AVAILABLE)));
+
+        var fleet = cars.saveAll(List.of(
+                car("Toyota Corolla", 2020, CarType.SEDAN, (byte) 5, (byte) 4, "150.00"),
+                car("Toyota RAV4", 2022, CarType.SUV, (byte) 5, (byte) 5, "250.00"),
+                car("Kia Sorento", 2024, CarType.SUV, (byte) 7, (byte) 5, "300.00"),
+                car("Mercedes Vito", 2018, CarType.VAN, (byte) 9, (byte) 5, "400.00"),
+                car("50% Discount Special", 2021, CarType.SEDAN, (byte) 5, (byte) 4, "99.00")));
+
+        var renter = Account.builder().email("car-specs@test.example").passwordHash("unused").build();
+        em.persist(renter);
+
+        var today = LocalDate.now();
+        rent(fleet.get(1), renter, today.minusDays(1), today.plusDays(1)); // RAV4, out today
+        rent(fleet.get(2), renter, today.minusDays(3), today.minusDays(1)); // Sorento, back yesterday
+        rent(fleet.get(3), renter, today.plusDays(1), today.plusDays(2)); // Vito, leaves tomorrow
+
+        // The saved cars stay cached with their in-memory status; drop them so reads derive it.
+        em.flush();
+        em.clear();
     }
 
     @Test
@@ -79,6 +101,18 @@ class CarSpecificationsTest {
     }
 
     @Test
+    @DisplayName("status is RENTED only while a rental covers today, not the day before or after")
+    void statusFollowsTodaysRental() {
+        assertThat(models(CarFilter.builder().status(Set.of(CarStatus.RENTED)).build()))
+                .containsExactly("Toyota RAV4");
+
+        assertThat(cars.findAll())
+                .filteredOn(car -> car.getStatus() == CarStatus.RENTED)
+                .extracting(Car::getModel)
+                .containsExactly("Toyota RAV4");
+    }
+
+    @Test
     @DisplayName("price and year bounds include their endpoints")
     void boundsAreInclusive() {
         assertThat(models(CarFilter.builder().minPrice(new BigDecimal("250.00")).maxPrice(new BigDecimal("300.00")).build()))
@@ -105,8 +139,17 @@ class CarSpecificationsTest {
         return matching(filter).stream().map(Car::getModel).toList();
     }
 
-    private static Car car(String model, int year, CarType type, byte seats, byte doors,
-                           String pricePerDay, CarStatus status) {
+    private void rent(Car car, Account renter, LocalDate start, LocalDate end) {
+        em.persist(Rental.builder()
+                .carId(car.getId())
+                .accountId(renter.getId())
+                .startDate(start)
+                .endDate(end)
+                .totalPrice(BigDecimal.ONE)
+                .build());
+    }
+
+    private static Car car(String model, int year, CarType type, byte seats, byte doors, String pricePerDay) {
         // Registration and VIN are unique per model here only because the tests never assert on them.
         var slug = Integer.toHexString(model.hashCode()).toUpperCase();
 
@@ -118,7 +161,6 @@ class CarSpecificationsTest {
                 .seats(seats)
                 .doors(doors)
                 .pricePerDay(new BigDecimal(pricePerDay))
-                .status(status)
                 .type(type)
                 .build();
     }
