@@ -122,6 +122,30 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Diagonal hatching for booked calendar days. The 6px tile keeps stripes continuous across cells
+   whose size is a multiple of 6 (the rent calendar uses 36px). */
+@utility hatch-booked {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--foreground) 20%, transparent) 0 9%,
+    transparent 9% 50%,
+    color-mix(in oklch, var(--foreground) 20%, transparent) 50% 59%,
+    transparent 59%
+  );
+  background-size: 6px 6px;
+}
+
+@utility hatch-mine {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--rented) 55%, transparent) 0 9%,
+    transparent 9% 50%,
+    color-mix(in oklch, var(--rented) 55%, transparent) 50% 59%,
+    transparent 59%
+  );
+  background-size: 6px 6px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
