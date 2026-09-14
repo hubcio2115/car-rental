@@ -105,7 +105,6 @@ class CarSeeder implements ApplicationRunner {
                     .seats(seats(type, random))
                     .doors(doors(type, random))
                     .pricePerDay(pricePerDay(type, year, random))
-                    .status(random.nextInt(100) < 20 ? CarStatus.RENTED : CarStatus.AVAILABLE)
                     .type(type)
                     .build());
         }
