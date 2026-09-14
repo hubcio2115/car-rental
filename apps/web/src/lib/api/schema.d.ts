@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+  "/rentals/{rentalId}/finish": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Finish one of the signed-in user's active rentals early */
+    post: operations["finish"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/car": {
     parameters: {
       query?: never;
@@ -123,10 +140,31 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/rentals/{rentalId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Cancel one of the signed-in user's upcoming rentals */
+    delete: operations["cancel"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    FinishRentalRequest: {
+      /** Format: date */
+      endDate: string;
+    };
     CreateCarRequest: {
       model: string;
       /** Format: int32 */
@@ -221,6 +259,30 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  finish: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        rentalId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FinishRentalRequest"];
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   getCars: {
     parameters: {
       query?: {
@@ -456,6 +518,26 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["CurrentUser"];
         };
+      };
+    };
+  };
+  cancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        rentalId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

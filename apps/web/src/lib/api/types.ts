@@ -19,6 +19,7 @@ export type User = Json200<paths["/auth/me"]["get"]>;
 export type Booking = components["schemas"]["Booking"];
 export type Rental = components["schemas"]["RentalView"];
 export type CreateRentalRequest = components["schemas"]["CreateRentalRequest"];
+export type FinishRentalRequest = components["schemas"]["FinishRentalRequest"];
 
 export const CAR_TYPES = ["SEDAN", "SUV", "VAN"] as const satisfies readonly CarType[];
 

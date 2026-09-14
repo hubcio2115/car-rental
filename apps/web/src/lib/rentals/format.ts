@@ -21,10 +21,16 @@ const dayFormat = new Intl.DateTimeFormat("en-GB", {
   month: "short",
 });
 
+export function formatDay(date: Date): string {
+  return dayFormat.format(date);
+}
+
 export function formatRange(start: Date, end: Date): string {
-  return isSameDay(start, end)
-    ? dayFormat.format(start)
-    : `${dayFormat.format(start)} to ${dayFormat.format(end)}`;
+  return isSameDay(start, end) ? formatDay(start) : `${formatDay(start)} to ${formatDay(end)}`;
+}
+
+export function shortenedPrice(total: number, start: Date, end: Date, newEnd: Date): number {
+  return (total * rentalDays(start, newEnd)) / rentalDays(start, end);
 }
 
 export type RentalState = "active" | "upcoming" | "past";
