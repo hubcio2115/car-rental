@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -37,7 +38,7 @@ public class RentalService {
             throw badRequest("A rental must end on or after its start date");
         }
 
-        var days = ChronoUnit.DAYS.between(start, end) + 1;
+        var days = dayCount(start, end);
         if (days > MAX_DAYS) {
             throw badRequest("A rental can last at most " + MAX_DAYS + " days");
         }
@@ -56,8 +57,7 @@ public class RentalService {
         } catch (DataIntegrityViolationException ex) {
             if (NestedExceptionUtils.getMostSpecificCause(ex) instanceof SQLException sql
                     && EXCLUSION_VIOLATION.equals(sql.getSQLState())) {
-                throw new ResponseStatusException(
-                        HttpStatus.CONFLICT, "This car is already rented on some of those dates");
+                throw conflict("This car is already rented on some of those dates");
             }
             throw ex;
         }
@@ -82,7 +82,54 @@ public class RentalService {
         return rentals.findViewsByAccountId(accountService.getByEmail(email).getId());
     }
 
+    public void cancel(Long rentalId, String email) {
+        var rental = owned(rentalId, email);
+
+        if (!rental.getStartDate().isAfter(LocalDate.now())) {
+            throw conflict("Only upcoming rentals can be cancelled");
+        }
+
+        rentals.delete(rental);
+    }
+
+    public void finish(Long rentalId, FinishRentalRequest request, String email) {
+        var rental = owned(rentalId, email);
+        var today = LocalDate.now();
+        var start = rental.getStartDate();
+        var end = rental.getEndDate();
+        var newEnd = request.endDate();
+
+        if (start.isAfter(today) || end.isBefore(today)) {
+            throw conflict("Only active rentals can be finished early");
+        }
+        if (newEnd.isBefore(today)) {
+            throw badRequest("A rental can't finish in the past");
+        }
+        if (!newEnd.isBefore(end)) {
+            throw badRequest("A rental can only finish before its current end date");
+        }
+
+        rental.setTotalPrice(rental.getTotalPrice()
+                .multiply(BigDecimal.valueOf(dayCount(start, newEnd)))
+                .divide(BigDecimal.valueOf(dayCount(start, end)), 2, RoundingMode.HALF_UP));
+        rental.setEndDate(newEnd);
+        rentals.save(rental);
+    }
+
+    private Rental owned(Long rentalId, String email) {
+        return rentals.findByIdAndAccountId(rentalId, accountService.getByEmail(email).getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
+    }
+
+    private static long dayCount(LocalDate start, LocalDate end) {
+        return ChronoUnit.DAYS.between(start, end) + 1;
+    }
+
     private static ResponseStatusException badRequest(String reason) {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, reason);
+    }
+
+    private static ResponseStatusException conflict(String reason) {
+        return new ResponseStatusException(HttpStatus.CONFLICT, reason);
     }
 }

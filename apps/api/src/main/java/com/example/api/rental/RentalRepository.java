@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findByCarIdAndEndDateGreaterThanEqualOrderByStartDate(Long carId, LocalDate date);
+
+    Optional<Rental> findByIdAndAccountId(Long id, Long accountId);
 
     @Query("""
             select new com.example.api.rental.RentalView(

@@ -37,4 +37,19 @@ public class RentalController {
     public List<RentalView> mine(Authentication authentication) {
         return rentalService.mine(authentication.getName());
     }
+
+    @DeleteMapping("/rentals/{rentalId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Cancel one of the signed-in user's upcoming rentals")
+    public void cancel(@PathVariable Long rentalId, Authentication authentication) {
+        rentalService.cancel(rentalId, authentication.getName());
+    }
+
+    @PostMapping("/rentals/{rentalId}/finish")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Finish one of the signed-in user's active rentals early")
+    public void finish(@PathVariable Long rentalId, @Valid @RequestBody FinishRentalRequest request,
+                       Authentication authentication) {
+        rentalService.finish(rentalId, request, authentication.getName());
+    }
 }
