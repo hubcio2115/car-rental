@@ -6,6 +6,7 @@ import * as z from "zod";
 import { $serverFetch } from "$lib/api/server-fetch";
 import { carQueries } from "$lib/cars/queries";
 import { STALE_TIME_SECONDS, getQueryClient } from "$lib/get-query-client";
+import { rentalQueries } from "$lib/rentals/queries";
 import { CarDetails } from "$components/cars/car-details";
 import { CarDetailsSkeleton } from "$components/cars/car-details-skeleton";
 import { CarsBackLink } from "$components/cars/cars-back-link";
@@ -39,7 +40,10 @@ async function CarData({ carId: rawCarId }: CarDataProps) {
   if (!carId.success) return notFound();
 
   const qc = getQueryClient();
-  await qc.query(carQueries.detail(carId.data, $serverFetch));
+  await Promise.all([
+    qc.query(carQueries.detail(carId.data, $serverFetch)),
+    qc.query(rentalQueries.forCar(carId.data, $serverFetch)),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>

@@ -22,6 +22,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/car/{carId}/rentals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List a car's current and upcoming bookings */
+    get: operations["bookings"];
+    put?: never;
+    /** Rent a car for a range of whole days */
+    post: operations["rent"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/auth/register": {
     parameters: {
       query?: never;
@@ -48,6 +66,23 @@ export interface paths {
     get?: never;
     put?: never;
     post: operations["login"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/rentals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the signed-in user's rentals, newest first */
+    get: operations["mine"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -124,6 +159,25 @@ export interface components {
       /** @enum {string} */
       type: "SUV" | "SEDAN" | "VAN";
     };
+    CreateRentalRequest: {
+      /** Format: date */
+      startDate: string;
+      /** Format: date */
+      endDate: string;
+    };
+    RentalView: {
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      carId: number;
+      carModel: string;
+      registrationNumber: string;
+      /** Format: date */
+      startDate: string;
+      /** Format: date */
+      endDate: string;
+      totalPrice: number;
+    };
     RegisterRequest: {
       /** Format: email */
       email: string;
@@ -150,6 +204,13 @@ export interface components {
     PagedModelCar: {
       content?: components["schemas"]["Car"][];
       page?: components["schemas"]["PageMetadata"];
+    };
+    Booking: {
+      /** Format: date */
+      startDate: string;
+      /** Format: date */
+      endDate: string;
+      mine: boolean;
     };
   };
   responses: never;
@@ -220,6 +281,54 @@ export interface operations {
       };
     };
   };
+  bookings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        carId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Booking"][];
+        };
+      };
+    };
+  };
+  rent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        carId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateRentalRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RentalView"];
+        };
+      };
+    };
+  };
   register: {
     parameters: {
       query?: never;
@@ -264,6 +373,26 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["CurrentUser"];
+        };
+      };
+    };
+  };
+  mine: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RentalView"][];
         };
       };
     };

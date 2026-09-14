@@ -54,7 +54,7 @@ export const $serverFetch = createFetch({
       try {
         store.set(cookie.name, cookie.value, {
           path: cookie.path,
-          httpOnly: true,
+          httpOnly: cookie.name !== CSRF_COOKIE,
           secure,
           sameSite: "lax",
           ...(cookie.maxAge !== undefined ? { maxAge: cookie.maxAge } : {}),

@@ -7,11 +7,10 @@ export const TYPE_LABEL: Record<CarType, string> = {
 };
 
 export const STATUS_LABEL: Record<CarStatus, string> = {
-  AVAILABLE: "Available",
-  RENTED: "Rented",
+  AVAILABLE: "Available Today",
+  RENTED: "Rented Today",
 };
 
-/** Prices arrive as plain zloty amounts; render them with the "zl" unit next to the number. */
 export const priceFormat = new Intl.NumberFormat("en-GB", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
