@@ -26,4 +26,9 @@ public class AccountService {
                 .role(AccountRole.USER)
                 .build());
     }
+
+    public Account getByEmail(String email) {
+        return accounts.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    }
 }
