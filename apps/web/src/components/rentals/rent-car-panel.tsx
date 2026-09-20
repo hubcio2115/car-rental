@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "cn";
 import { parseISO, startOfToday } from "date-fns";
-import { useState, type ReactNode } from "react";
+import { useState, type PropsWithChildren } from "react";
 import type { DateRange } from "react-day-picker";
 
 import { Button } from "$components/ui/button";
@@ -179,7 +179,11 @@ export function RentCarPanel({ carId, pricePerDay }: RentCarPanelProps) {
   );
 }
 
-function LegendItem({ swatch, children }: { swatch: string; children: ReactNode }) {
+interface LegendItemProps extends PropsWithChildren {
+  swatch: string;
+}
+
+function LegendItem({ swatch, children }: LegendItemProps) {
   return (
     <li className="inline-flex items-center gap-1.5">
       <i aria-hidden="true" className={cn("size-3", swatch)} />

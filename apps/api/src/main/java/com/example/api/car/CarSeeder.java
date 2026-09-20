@@ -32,9 +32,6 @@ class CarSeeder implements ApplicationRunner {
     private static final int FLEET_SIZE = 80;
     private static final long SEED = 42L;
 
-    /**
-     * Excludes I, O and Q, which VINs omit to avoid confusion with 1 and 0.
-     */
     private static final String VIN_ALPHABET = "ABCDEFGHJKLMNPRSTUVWXYZ0123456789";
 
     private static final Map<CarType, List<String>> MODELS = Map.of(
@@ -48,9 +45,6 @@ class CarSeeder implements ApplicationRunner {
                     "Volkswagen Transporter", "Ford Transit Custom", "Mercedes Vito",
                     "Renault Trafic", "Peugeot Expert", "Opel Vivaro"));
 
-    /**
-     * Registration prefixes, cycled. The numeric part is index derived, so plates stay unique.
-     */
     private static final List<String> PLATE_PREFIXES =
             List.of("KR", "WA", "GD", "PO", "WR", "LU", "KA", "SK");
 
@@ -59,9 +53,6 @@ class CarSeeder implements ApplicationRunner {
             CarType.SUV, "JM3",
             CarType.VAN, "WV2");
 
-    /**
-     * Cheapest plausible day rate per type, before age and jitter.
-     */
     private static final Map<CarType, Integer> BASE_PRICE = Map.of(
             CarType.SEDAN, 120,
             CarType.SUV, 200,
@@ -134,9 +125,6 @@ class CarSeeder implements ApplicationRunner {
         };
     }
 
-    /**
-     * Newer cars cost more, with a little scatter so prices are not a clean ladder.
-     */
     private static BigDecimal pricePerDay(CarType type, int year, Random random) {
         var whole = BASE_PRICE.get(type) + (year - 2015) * 9 + random.nextInt(46);
         var quarters = random.nextInt(4) * 25;
@@ -147,9 +135,6 @@ class CarSeeder implements ApplicationRunner {
         return "%s %04d".formatted(PLATE_PREFIXES.get(index % PLATE_PREFIXES.size()), 1000 + index * 11);
     }
 
-    /**
-     * 3 char prefix, 8 random chars, then a 6 digit serial off the index so VINs cannot collide.
-     */
     private static String vin(CarType type, int index, Random random) {
         var middle = new StringBuilder(8);
         for (var i = 0; i < 8; i++) {

@@ -152,7 +152,7 @@ class RentalControllerTest {
 
         cancel(upcoming).andExpect(status().isNoContent());
 
-        // Listing makes Hibernate flush the pending delete. Otherwise the next rental's insert could
+        // Listing makes Hibernate flush the pending delete. Otherwise, the next rental's insert could
         // reach the database first, since everything here shares one test transaction.
         mockMvc.perform(get("/rentals"))
                 .andExpect(status().isOk())

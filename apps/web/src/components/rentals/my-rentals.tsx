@@ -69,11 +69,12 @@ export function MyRentals() {
   function cancelRental(rental: Rental) {
     setNotice(undefined);
     cancel.mutate(rental.id, {
-      onSuccess: () =>
+      onSuccess: () => {
         setNotice({
           tone: "success",
           text: `Cancelled ${rental.carModel}, ${formatRange(parseISO(rental.startDate), parseISO(rental.endDate))}`,
-        }),
+        });
+      },
       onError: fail,
     });
   }
@@ -83,8 +84,9 @@ export function MyRentals() {
     finish.mutate(
       { rentalId: rental.id, endDate: toApiDate(endDate) },
       {
-        onSuccess: () =>
-          setNotice({ tone: "success", text: `${rental.carModel} now ends ${formatDay(endDate)}` }),
+        onSuccess: () => {
+          setNotice({ tone: "success", text: `${rental.carModel} now ends ${formatDay(endDate)}` });
+        },
         onError: fail,
       },
     );

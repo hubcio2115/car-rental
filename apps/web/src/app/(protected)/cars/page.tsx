@@ -23,7 +23,11 @@ export default function CarsPage({ searchParams }: PageProps<"/cars">) {
   );
 }
 
-async function CarsData({ filters }: { filters: CarFilters }) {
+interface CarsDataProps {
+  filters: CarFilters;
+}
+
+async function CarsData({ filters }: CarsDataProps) {
   "use cache: private";
   cacheLife({ stale: STALE_TIME_SECONDS });
 

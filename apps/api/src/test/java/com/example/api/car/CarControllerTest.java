@@ -10,6 +10,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -119,7 +121,7 @@ class CarControllerTest {
                 .vin(("VIN" + slug + "00000000000000").substring(0, 17))
                 .seats((byte) 5)
                 .doors((byte) 4)
-                .pricePerDay(new java.math.BigDecimal(pricePerDay))
+                .pricePerDay(new BigDecimal(pricePerDay))
                 .type(type)
                 .build();
     }

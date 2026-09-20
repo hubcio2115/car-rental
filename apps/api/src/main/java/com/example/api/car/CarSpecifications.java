@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
 @UtilityClass
@@ -58,15 +59,10 @@ class CarSpecifications {
         };
     }
 
-    private static boolean isPopulated(java.util.Collection<?> values) {
+    private static boolean isPopulated(Collection<?> values) {
         return values != null && !values.isEmpty();
     }
 
-    /**
-     * Neutralises the LIKE wildcards so a search for "50%" looks for that literal
-     * text instead of matching everything. The backslash itself goes first, or it
-     * would escape the escapes.
-     */
     private static String escapeLike(String value) {
         return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

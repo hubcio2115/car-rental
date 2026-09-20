@@ -10,6 +10,7 @@ import { Label } from "$components/ui/label";
 import { CAR_STATUSES, CAR_TYPES } from "$lib/api/types";
 import { STATUS_LABEL, TYPE_LABEL } from "$lib/cars/format";
 import { activeFilterCount, type CarFilters, type CarFiltersUpdate } from "$lib/cars/search-params";
+import type { PropsWithChildren } from "react";
 
 const SEAT_OPTIONS = [5, 7, 8, 9] as const;
 const DOOR_OPTIONS = [4, 5] as const;
@@ -114,7 +115,11 @@ export function CarFiltersCard({ filters, onChange, onClear }: CarFiltersProps) 
   );
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+interface FilterGroupProps extends PropsWithChildren {
+  label: string;
+}
+
+function FilterGroup({ label, children }: FilterGroupProps) {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">

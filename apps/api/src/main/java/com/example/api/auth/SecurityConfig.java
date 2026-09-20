@@ -43,7 +43,6 @@ class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll();
-                    auth.requestMatchers("/actuator/health").permitAll();
                     auth.requestMatchers("/error").permitAll();
                     if (publishDocs)
                         auth.requestMatchers(DOC_PATHS).permitAll();
