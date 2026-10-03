@@ -11,3 +11,7 @@ catalog:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+allowBuilds:
+  "@scarf/scarf": true
+  esbuild: false

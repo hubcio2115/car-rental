@@ -15,5 +15,5 @@ export default defineConfig({
     preserveWhitespace: true,
   },
 
-  ignorePatterns: ["node_modules", "dist", ".next", "pnpm-lock.yaml", ".agents/**"],
+  ignorePatterns: ["node_modules", "dist", ".next", "pnpm-lock.yaml", ".agents/**", "apps/api/drizzle/meta/**"],
 });
