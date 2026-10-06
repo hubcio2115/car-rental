@@ -1,8 +1,10 @@
 import { env } from "~/env";
 
-export const SESSION_COOKIE = "JSESSIONID";
+/** A session cookie, value decoded as Next hands it out. */
+export type SessionCookie = { name: string; value: string };
 
-const PLAUSIBLE_SESSION_ID = /^[0-9a-f]{16,128}(?:\.[\w-]{1,64})?$/i;
+// better-auth's token, a dot, and its base64 HMAC signature.
+const PLAUSIBLE_SESSION_TOKEN = /^[A-Za-z0-9]{16,128}\.[A-Za-z0-9+/=_-]{16,128}$/;
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -29,25 +31,26 @@ function prune(now: number): void {
   }
 }
 
-async function checkWithApi(sessionId: string): Promise<"valid" | "invalid"> {
-  const response = await fetch(`${env.API_BASE_URL}/auth/me`, {
+async function checkWithApi({ name, value }: SessionCookie): Promise<"valid" | "invalid"> {
+  const response = await fetch(`${env.API_BASE_URL}/users/me`, {
     method: "GET",
-    headers: { cookie: `${SESSION_COOKIE}=${sessionId}` },
+    headers: { cookie: `${name}=${encodeURIComponent(value)}` },
     cache: "no-store",
   });
 
   return response.ok ? "valid" : "invalid";
 }
 
-export async function verifySession(sessionId: string | undefined): Promise<SessionState> {
-  if (sessionId === undefined || !PLAUSIBLE_SESSION_ID.test(sessionId)) return "none";
+export async function verifySession(cookie: SessionCookie | undefined): Promise<SessionState> {
+  if (cookie === undefined || !PLAUSIBLE_SESSION_TOKEN.test(cookie.value)) return "none";
+  const sessionId = cookie.value;
 
   const now = Date.now();
   let entry = cache.get(sessionId);
 
   if (entry === undefined || entry.expiresAt <= now) {
     if (cache.size >= MAX_CACHE_ENTRIES) prune(now);
-    entry = { expiresAt: now + CACHE_TTL_MS, state: checkWithApi(sessionId) };
+    entry = { expiresAt: now + CACHE_TTL_MS, state: checkWithApi(cookie) };
     cache.set(sessionId, entry);
   }
 

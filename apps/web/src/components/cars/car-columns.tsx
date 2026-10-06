@@ -31,7 +31,6 @@ export const carColumns = helper.columns([
     header: "Model",
     cell: (ctx) => {
       const { id } = ctx.row.original;
-      if (id === undefined) return <span className="font-medium">{ctx.getValue()}</span>;
 
       return (
         <Link

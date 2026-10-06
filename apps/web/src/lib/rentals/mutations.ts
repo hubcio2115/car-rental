@@ -2,7 +2,7 @@ import { mutationOptions } from "@tanstack/react-query";
 import { rentalQueries } from "./queries";
 import type { CreateRentalRequest, FinishRentalRequest, Rental } from "$lib/api/types";
 import { $fetch } from "$lib/api/fetch";
-import { springErrorDetail } from "$lib/api/problem";
+import { apiErrorDetail } from "$lib/api/problem";
 
 export const rentalMutations = {
   cancel: () =>
@@ -12,7 +12,7 @@ export const rentalMutations = {
         const { error } = await $fetch(`/rentals/${rentalId}`, { method: "DELETE" });
 
         if (error !== null) {
-          throw new Error(springErrorDetail(error) ?? "Could not cancel this rental.");
+          throw new Error(apiErrorDetail(error) ?? "Could not cancel this rental.");
         }
       },
     }),
@@ -24,7 +24,7 @@ export const rentalMutations = {
         const { error } = await $fetch(`/rentals/${rentalId}/finish`, { method: "POST", body });
 
         if (error !== null) {
-          throw new Error(springErrorDetail(error) ?? "Could not finish this rental.");
+          throw new Error(apiErrorDetail(error) ?? "Could not finish this rental.");
         }
       },
     }),
@@ -39,7 +39,7 @@ export const rentalMutations = {
         });
 
         if (error !== null) {
-          throw new Error(springErrorDetail(error) ?? "Could not rent this car.");
+          throw new Error(apiErrorDetail(error) ?? "Could not rent this car.");
         }
 
         return data;

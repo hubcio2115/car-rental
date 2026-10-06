@@ -5,9 +5,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as z from "zod";
 
-import { springErrorDetail } from "~/lib/api/problem";
+import { apiErrorDetail } from "~/lib/api/problem";
 import { $serverFetch } from "~/lib/api/server-fetch";
 import { loginSchema, registerSchema } from "./schema";
+import { isAuthCookie } from "./session-cookie";
 
 export interface AuthFormState {
   fieldErrors?: { email?: string[]; password?: string[] };
@@ -16,7 +17,8 @@ export interface AuthFormState {
 }
 
 const GENERIC_ERROR = "Something went wrong. Try again.";
-const CSRF_ERROR = "Security check failed. Refresh the page and try again.";
+// The API refuses cookie-bearing writes that don't come from this app's origin.
+const ORIGIN_ERROR = "Security check failed. Refresh the page and try again.";
 const INVALID_ERROR = "Check your details and try again.";
 
 function submittedEmail(formData: FormData): string | undefined {
@@ -25,7 +27,7 @@ function submittedEmail(formData: FormData): string | undefined {
 }
 
 function logFailure(label: string, status: number, body: unknown): void {
-  console.error(`[auth] ${label} failed with ${status}`, springErrorDetail(body));
+  console.error(`[auth] ${label} failed with ${status}`, apiErrorDetail(body));
 }
 
 export async function login(_previous: AuthFormState, formData: FormData): Promise<AuthFormState> {
@@ -39,7 +41,7 @@ export async function login(_previous: AuthFormState, formData: FormData): Promi
     return { fieldErrors: z.flattenError(parsed.error).fieldErrors, values };
   }
 
-  const { error } = await $serverFetch("/auth/login", {
+  const { error } = await $serverFetch("/api/auth/sign-in/email", {
     method: "POST",
     body: parsed.data,
   });
@@ -52,7 +54,7 @@ export async function login(_previous: AuthFormState, formData: FormData): Promi
         : error.status === 400
           ? INVALID_ERROR
           : error.status === 403
-            ? CSRF_ERROR
+            ? ORIGIN_ERROR
             : GENERIC_ERROR;
     return { formError, values };
   }
@@ -75,18 +77,18 @@ export async function register(
     return { fieldErrors: z.flattenError(parsed.error).fieldErrors, values };
   }
 
-  const { error } = await $serverFetch("/auth/register", {
+  const { error } = await $serverFetch("/api/auth/sign-up/email", {
     method: "POST",
-    body: parsed.data,
+    // better-auth requires a display name. Nothing asks for one yet, so it's the email.
+    body: { ...parsed.data, name: parsed.data.email },
   });
 
   if (error !== null) {
     logFailure("register", error.status, error);
-    if (error.status === 409) {
-      return { fieldErrors: { email: ["That email is already registered."] }, values };
-    }
+    // No "already registered" case: with autoSignIn off, better-auth answers a taken email with
+    // the same success as a new one, so sign-up can't be used to probe who has an account.
     const formError =
-      error.status === 400 ? INVALID_ERROR : error.status === 403 ? CSRF_ERROR : GENERIC_ERROR;
+      error.status === 400 ? INVALID_ERROR : error.status === 403 ? ORIGIN_ERROR : GENERIC_ERROR;
     return { formError, values };
   }
 
@@ -94,10 +96,13 @@ export async function register(
 }
 
 export async function logout(): Promise<void> {
-  await $serverFetch("/auth/logout", { method: "POST" });
+  await $serverFetch("/api/auth/sign-out", { method: "POST" });
 
+  // The sign-out response expires them too, but a failed call must not leave the user signed in.
   const cookieStore = await cookies();
-  cookieStore.delete("JSESSIONID");
+  for (const cookie of cookieStore.getAll()) {
+    if (isAuthCookie(cookie.name)) cookieStore.delete(cookie.name);
+  }
 
   refresh();
   redirect("/login");

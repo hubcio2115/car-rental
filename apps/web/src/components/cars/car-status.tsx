@@ -4,8 +4,8 @@ import type { CarStatus } from "$lib/api/types";
 import { STATUS_LABEL } from "$lib/cars/format";
 
 const DOT_CLASS: Record<CarStatus, string> = {
-  AVAILABLE: "bg-available",
-  RENTED: "bg-rented",
+  available: "bg-available",
+  rented: "bg-rented",
 };
 
 interface CarStatusLabelProps {

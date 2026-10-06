@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "gen:api": "openapi-typescript http://localhost:8080/v3/api-docs -o src/lib/api/schema.d.ts",
     "build": "next build",
     "start": "next start",
+    "gen:api": "openapi-typescript ../api/openapi.json -o src/lib/api/schema.d.ts && oxfmt src/lib/api/schema.d.ts",
     "lint": "next typegen && oxlint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "next typegen && tsc --noEmit --tsBuildInfoFile node_modules/.cache/tsc/typecheck.tsbuildinfo"

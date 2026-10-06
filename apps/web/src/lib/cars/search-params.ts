@@ -81,7 +81,7 @@ export function toCarQuery(filters: CarFilters): CarQuery {
     ...(filters.maxPrice === null ? {} : { maxPrice: filters.maxPrice }),
     ...(filters.minYear === null ? {} : { minYear: filters.minYear }),
     ...(filters.maxYear === null ? {} : { maxYear: filters.maxYear }),
-    sort: [filters.sort],
+    sort: filters.sort,
     page: filters.page,
     size: PAGE_SIZE,
   };

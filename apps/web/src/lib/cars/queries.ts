@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { $fetch, type Fetcher } from "$lib/api/fetch";
-import { springErrorDetail } from "$lib/api/problem";
+import { apiErrorDetail } from "$lib/api/problem";
 import type { Car, CarPage } from "$lib/api/types";
 import { toCarQuery, type CarFilters } from "./search-params";
 
@@ -17,7 +17,7 @@ export const carQueries = {
         const { data, error } = await fetcher<CarPage>("/car", { query: toCarQuery(filters) });
 
         if (error !== null) {
-          throw new Error(springErrorDetail(error) ?? "Could not load cars.");
+          throw new Error(apiErrorDetail(error) ?? "Could not load cars.");
         }
 
         return data;
@@ -35,7 +35,7 @@ export const carQueries = {
         if (error?.status === 404) throw new Error("Car not found.");
 
         if (error !== null) {
-          throw new Error(springErrorDetail(error) ?? "Could not load car.");
+          throw new Error(apiErrorDetail(error) ?? "Could not load car.");
         }
 
         return data;

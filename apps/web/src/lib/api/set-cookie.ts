@@ -1,5 +1,5 @@
-/** A `Set-Cookie` from Spring, reduced to the attributes we are willing to mirror. */
-export type SpringCookie = {
+/** A `Set-Cookie` from the API, reduced to the attributes we are willing to mirror. */
+export type ApiCookie = {
   name: string;
   value: string;
   path: string;
@@ -12,22 +12,25 @@ export type SpringCookie = {
  * than throwing, so one bad header cannot fail a login.
  *
  * `domain`, `secure`, `samesite` and `httponly` are deliberately not parsed: those
- * describe Spring's origin, and not reading them is what guarantees we cannot forward
+ * describe the API's origin, and not reading them is what guarantees we cannot forward
  * them onto ours by accident. See `$serverFetch`'s onResponse for what we set instead.
+ *
+ * The value comes back decoded: Next's cookie store encodes on write, so storing it encoded
+ * would double-encode better-auth's signed token and break its signature.
  */
-export function parseSetCookie(header: string): SpringCookie | null {
+export function parseSetCookie(header: string): ApiCookie | null {
   const [pair, ...attributes] = header.split(";");
   if (pair === undefined) return null;
 
-  // Split at the FIRST "=" only: base64 CSRF token values contain "=".
+  // Split at the FIRST "=" only: signed token values can contain "=".
   const separator = pair.indexOf("=");
   if (separator <= 0) return null;
 
   const name = pair.slice(0, separator).trim();
-  const value = pair.slice(separator + 1).trim();
-  if (name === "") return null;
+  const value = decodeValue(pair.slice(separator + 1).trim());
+  if (name === "" || value === null) return null;
 
-  const cookie: SpringCookie = { name, value, path: "/" };
+  const cookie: ApiCookie = { name, value, path: "/" };
 
   for (const attribute of attributes) {
     const split = attribute.indexOf("=");
@@ -53,9 +56,17 @@ export function parseSetCookie(header: string): SpringCookie | null {
  * one comma-joined string, and `Expires=Wed, 21 Oct ...` contains a comma, so splitting
  * that back apart is unrecoverable. `getSetCookie()` is the only correct read.
  */
-export function readSetCookies(response: Response): SpringCookie[] {
+export function readSetCookies(response: Response): ApiCookie[] {
   return response.headers
     .getSetCookie()
     .map(parseSetCookie)
     .filter((cookie) => cookie !== null);
+}
+
+function decodeValue(raw: string): string | null {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
 }

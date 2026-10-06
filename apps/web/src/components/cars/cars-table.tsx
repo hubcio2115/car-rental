@@ -34,9 +34,10 @@ interface CarsTableProps {
 export function CarsTable({ filters, onChange, isPending }: CarsTableProps) {
   const { data } = useSuspenseQuery(carQueries.list(filters));
 
-  const rows = data.content ?? [];
-  const totalElements = data.page?.totalElements ?? 0;
-  const totalPages = data.page?.totalPages ?? 0;
+  const {
+    content: rows,
+    page: { totalElements, totalPages },
+  } = data;
 
   const table = useTable({
     features: carTableFeatures,
