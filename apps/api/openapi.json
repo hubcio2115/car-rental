@@ -1,0 +1,845 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/car": {
+      "get": {
+        "operationId": "CarController_getCars",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["suv", "sedan", "van"]
+              }
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["available", "rented"]
+              }
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "multipleOf": 0.01
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "multipleOf": 0.01
+            }
+          },
+          {
+            "name": "seats",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9
+              }
+            }
+          },
+          {
+            "name": "doors",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          },
+          {
+            "name": "minYear",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1886,
+              "maximum": 2027
+            }
+          },
+          {
+            "name": "maxYear",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1886,
+              "maximum": 2027
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 12,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "id,asc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Car"
+                      }
+                    },
+                    "page": {
+                      "$ref": "#/components/schemas/PageMetadata"
+                    }
+                  },
+                  "required": ["content", "page"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "List cars matching the given filters",
+        "tags": ["Cars"]
+      },
+      "post": {
+        "operationId": "CarController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1886,
+                    "maximum": 2027
+                  },
+                  "registrationNumber": {
+                    "type": "string"
+                  },
+                  "vin": {
+                    "type": "string"
+                  },
+                  "seats": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9
+                  },
+                  "doors": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                  },
+                  "pricePerDay": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true,
+                    "maximum": 99999999.99,
+                    "multipleOf": 0.01
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["suv", "sedan", "van"]
+                  }
+                },
+                "required": [
+                  "model",
+                  "year",
+                  "registrationNumber",
+                  "vin",
+                  "seats",
+                  "doors",
+                  "pricePerDay",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    },
+                    "registrationNumber": {
+                      "type": "string"
+                    },
+                    "vin": {
+                      "type": "string",
+                      "maxLength": 17
+                    },
+                    "seats": {
+                      "type": "integer",
+                      "minimum": -32768,
+                      "maximum": 32767
+                    },
+                    "doors": {
+                      "type": "integer",
+                      "minimum": -32768,
+                      "maximum": 32767
+                    },
+                    "pricePerDay": {
+                      "type": "number",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["suv", "sedan", "van"]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["available", "rented"],
+                      "description": "Derived: rented while a rental covers today"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "model",
+                    "year",
+                    "registrationNumber",
+                    "vin",
+                    "seats",
+                    "doors",
+                    "pricePerDay",
+                    "type",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a car",
+        "tags": ["Cars"]
+      }
+    },
+    "/car/{carId}": {
+      "get": {
+        "operationId": "CarController_getCarById",
+        "parameters": [
+          {
+            "name": "carId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    },
+                    "registrationNumber": {
+                      "type": "string"
+                    },
+                    "vin": {
+                      "type": "string",
+                      "maxLength": 17
+                    },
+                    "seats": {
+                      "type": "integer",
+                      "minimum": -32768,
+                      "maximum": 32767
+                    },
+                    "doors": {
+                      "type": "integer",
+                      "minimum": -32768,
+                      "maximum": 32767
+                    },
+                    "pricePerDay": {
+                      "type": "number",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["suv", "sedan", "van"]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["available", "rented"],
+                      "description": "Derived: rented while a rental covers today"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "model",
+                    "year",
+                    "registrationNumber",
+                    "vin",
+                    "seats",
+                    "doors",
+                    "pricePerDay",
+                    "type",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get one car by id",
+        "tags": ["Cars"]
+      },
+      "delete": {
+        "operationId": "CarController_deleteById",
+        "parameters": [
+          {
+            "name": "carId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Delete a car by id",
+        "tags": ["Cars"]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "operationId": "UserController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": ["user", "admin"]
+                        }
+                      },
+                      "required": ["id", "email", "name", "role"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["user"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": ["User"]
+      }
+    },
+    "/car/{carId}/rentals": {
+      "post": {
+        "operationId": "RentalController_rent",
+        "parameters": [
+          {
+            "name": "carId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startDate": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  }
+                },
+                "required": ["startDate", "endDate"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "carId": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "startDate": {
+                      "type": "string"
+                    },
+                    "endDate": {
+                      "type": "string"
+                    },
+                    "totalPrice": {
+                      "type": "number",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "carModel": {
+                      "type": "string"
+                    },
+                    "registrationNumber": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "carId",
+                    "startDate",
+                    "endDate",
+                    "totalPrice",
+                    "carModel",
+                    "registrationNumber"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "Rent a car for a range of whole days",
+        "tags": ["Rentals"]
+      },
+      "get": {
+        "operationId": "RentalController_bookings",
+        "parameters": [
+          {
+            "name": "carId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Booking"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List a car's current and upcoming bookings",
+        "tags": ["Rentals"]
+      }
+    },
+    "/rentals": {
+      "get": {
+        "operationId": "RentalController_mine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RentalView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List the signed-in user's rentals, newest first",
+        "tags": ["Rentals"]
+      }
+    },
+    "/rentals/{rentalId}": {
+      "delete": {
+        "operationId": "RentalController_cancel",
+        "parameters": [
+          {
+            "name": "rentalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Cancel one of the signed-in user's upcoming rentals",
+        "tags": ["Rentals"]
+      }
+    },
+    "/rentals/{rentalId}/finish": {
+      "post": {
+        "operationId": "RentalController_finish",
+        "parameters": [
+          {
+            "name": "rentalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endDate": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  }
+                },
+                "required": ["endDate"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Finish one of the signed-in user's active rentals early",
+        "tags": ["Rentals"]
+      }
+    }
+  },
+  "info": {
+    "title": "Cars rental",
+    "description": "Car rental API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "cars-rental",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "Car": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "model": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "vin": {
+            "type": "string",
+            "maxLength": 17
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": -32768,
+            "maximum": 32767
+          },
+          "doors": {
+            "type": "integer",
+            "minimum": -32768,
+            "maximum": 32767
+          },
+          "pricePerDay": {
+            "type": "number",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "type": {
+            "type": "string",
+            "enum": ["suv", "sedan", "van"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["available", "rented"],
+            "description": "Derived: rented while a rental covers today"
+          }
+        },
+        "required": [
+          "id",
+          "model",
+          "year",
+          "registrationNumber",
+          "vin",
+          "seats",
+          "doors",
+          "pricePerDay",
+          "type",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "PageMetadata": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "number": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalElements": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": ["size", "number", "totalElements", "totalPages"],
+        "additionalProperties": false
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "mine": {
+            "type": "boolean"
+          }
+        },
+        "required": ["startDate", "endDate", "mine"],
+        "additionalProperties": false
+      },
+      "RentalView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "carId": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "totalPrice": {
+            "type": "number",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "carModel": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "carId",
+          "startDate",
+          "endDate",
+          "totalPrice",
+          "carModel",
+          "registrationNumber"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

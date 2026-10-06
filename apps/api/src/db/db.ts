@@ -3,6 +3,6 @@ import { relations } from "./schema.js";
 
 export type Database = ReturnType<typeof drizzle>;
 
-export function createConnection(url: string): Database {
+export function createConnection(url: string) {
   return drizzle(url, { relations });
 }

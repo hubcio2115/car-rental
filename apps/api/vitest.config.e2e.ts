@@ -7,10 +7,15 @@ export default defineConfig({
     globals: true,
     root: "./",
     include: ["**/*.e2e-spec.ts"],
-    // AppModule validates env on boot. The pg pool is lazy, so tests that
-    // don't query never actually connect.
+    // Starts a throwaway Postgres and migrates it. Needs Docker running.
+    globalSetup: ["./test/global-setup.ts"],
+    setupFiles: ["./test/setup.ts"],
+    // Every file truncates the one shared database, so they can't run side by side.
+    fileParallelism: false,
+    hookTimeout: 120_000,
     env: {
-      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/car_rental",
+      BETTER_AUTH_SECRET: "e2e-secret-that-is-long-enough-for-better-auth",
+      BETTER_AUTH_URL: "http://localhost:8080",
     },
   },
 });
